@@ -19,10 +19,22 @@ Share your project with the following GitHub users:
 - omasri-tb
 - alexwine36
 
-## Example cURL
+## Installation
+
+To start application run the following command from project root directory:
 ```
-curl -X POST -F "image=@extracted_page_xyz.png" "http://localhost:3000/run-inference?type=wall"
-curl -X POST -F "image=@extracted_page_xyz.png" "http://localhost:3000/run-inference?type=room"
-curl -X POST -F "image=@extracted_page_xyz.png" "http://localhost:3000/run-inference?type=page_info"
-curl -X POST -F "image=@extracted_page_xyz.png" "http://localhost:3000/run-inference?type=tables"
+docker compose -f src/docker-compose.dev.yml up --build
+```
+
+This command runs two applications:
+1. Webserver for serving API available at http://127.0.0.1:5000/
+2. JupyterLab available at http://127.0.0.1:8888/lab
+
+## API Testing
+For testing purposes you can use `Swagger` available at [http:/localhost:5000](http://127.0.0.1:5000/) or you can use cURL.
+
+### Example cURL
+```
+curl -X POST 'http://127.0.0.1:5000/predict?type=walls' -F 'image=@src\ml\walls_detection\data\examples\F1_original.png'
+curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src\ml\table_extraction\data\input\image_1.jpg'
 ```
