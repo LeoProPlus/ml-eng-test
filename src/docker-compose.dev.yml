@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  webserver:
+    container_name: webserver
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 5000:5000
+    command: "python3 -m flask run --debug --host=0.0.0.0"
+    volumes:
+      - ".:/home/jovyan"
+    environment:
+      - FLASK_APP=webserver.app
+      - FLASK_ENV=development
+      - WALLS_DETECTION_MODEL_FILE=ml/walls_detection/checkpoints/model_epoch_5.pt
+  notebook:
+    container_name: notebook
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    shm_size: 32gb
+    ports:
+      - 8888:8888
+    volumes:
+      - ".:/home/jovyan"

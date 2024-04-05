@@ -1,0 +1,11 @@
+__pycache__
+.cache
+.ipython
+.ipynb_checkpoints
+.jupyter
+.local
+.npm
+*.pt
+src/ml/walls_detection/data/cubicasa5k*
+src/ml/table_extraction/data/output
+uploads/
