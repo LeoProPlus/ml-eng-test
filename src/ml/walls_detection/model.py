@@ -1,6 +1,8 @@
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from ml.walls_detection.config import Config
+from ml.walls_detection.checkpoint import laod_model_checkpoint
 
 
 def get_model_instance_segmentation(num_classes):
@@ -22,5 +24,14 @@ def get_model_instance_segmentation(num_classes):
         hidden_layer,
         num_classes
     )
+
+    return model
+
+
+def get_pretrained_model(model_file_path: str = Config.MOEDL_FILE):
+    model = get_model_instance_segmentation(Config.NUM_CLASSES)
+    laod_model_checkpoint(model_file_path, model)
+    model.to(Config.DEVICE)
+    model.eval()
 
     return model

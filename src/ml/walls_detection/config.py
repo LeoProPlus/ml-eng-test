@@ -1,4 +1,5 @@
 import os
+import torch
 
 
 class Config:
@@ -8,3 +9,4 @@ class Config:
     WALL_CLASS_ID = 2
     MOEDL_FILE = os.getenv('WALLS_DETECTION_MODEL_FILE',
                            'ml/walls_detection/checkpoints/model.pt')
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

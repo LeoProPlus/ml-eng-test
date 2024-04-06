@@ -7,3 +7,5 @@ gdown==4.7.3
 opencv-contrib-python==4.8.0.76
 opencv-python==4.8.0.76
 opencv-python-headless==4.9.0.80
+lmdb==1.4.1
+svgpathtools==1.6.1

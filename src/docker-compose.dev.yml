@@ -23,5 +23,8 @@ services:
     shm_size: 32gb
     ports:
       - 8888:8888
+    command: "start-notebook.py --IdentityProvider.token=''"
     volumes:
       - ".:/home/jovyan"
+    environment:
+      - WALLS_DETECTION_MODEL_FILE=/home/jovyan/ml/walls_detection/checkpoints/model_epoch_5.pt

@@ -1,0 +1,3 @@
+[submodule "src/ml/walls_detection/CubiCasa5k"]
+	path = src/ml/walls_detection/CubiCasa5k
+	url = ../CubiCasa5k.git

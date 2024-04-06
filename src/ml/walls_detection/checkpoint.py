@@ -3,8 +3,8 @@ import os
 
 
 def save_checkpoint(model, optimizer, epoch, train_loss, val_loss):
-    dir = 'checkpoints'
-    file_name = f'model_{epoch}.pt'
+    dir = 'checkpoints/tmp'
+    file_name = f'model_{epoch}_{val_loss:.5f}.pt'
     path = os.path.join(dir, file_name)
 
     os.makedirs(dir, exist_ok=True)
