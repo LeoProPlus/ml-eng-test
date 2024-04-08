@@ -1,3 +1,6 @@
 [submodule "src/ml/walls_detection/CubiCasa5k"]
 	path = src/ml/walls_detection/CubiCasa5k
 	url = ../CubiCasa5k.git
+[submodule "src/ml-eng-test-lfs-storage"]
+	path = src/ml-eng-test-lfs-storage
+	url = ../ml-eng-test-lfs-storage.git
