@@ -19,6 +19,19 @@ Share your project with the following GitHub users:
 - omasri-tb
 - alexwine36
 
+## Cloning repository
+This repository uses 2 submodules.
+1. https://github.com/LeoProPlus/CubiCasa5k
+    - Fork of the official CubiCasa5k dataset repo. It is used for training. We utilize a few functions in order to read CubiCasa5k dataset.
+2. https://github.com/LeoProPlus/ml-eng-test-lfs-storage
+    - Forked repositories cannot use git lfs, so we added another submodule to work aounrd this problem. We are using git lfs to store trained models.
+
+ The best way to clone everything at once is to run the following command (it may take a while because it also downloads lfs files):
+
+```
+git clone --recurse-submodules https://github.com/LeoProPlus/ml-eng-test
+```
+
 ## Installation
 
 To start application run the following command from project root directory:
