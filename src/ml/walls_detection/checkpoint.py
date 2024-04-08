@@ -42,3 +42,4 @@ def laod_model_checkpoint(path, model):
     else:
         checkpoint = torch.load(path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['model_state_dict'])
+    print(f'Loaded model from file: {path}')
