@@ -144,9 +144,7 @@ def apply_ocr(cell_coordinates, cropped_table, ocr_processor, ocr_model):
 
 def apply_ocr_json(cell_coordinates, cropped_table, ocr_processor, ocr_model):
     # let's OCR row by row
-    dict_result = {'type': 'schedule_of_materials',
-                   'image_id': 54, 'detectionResults': []}
-    table = {'tableName': 'A3', 'columns': []}
+    columns = []
 
     for idx, row in enumerate(tqdm(cell_coordinates)):
         rows = []
@@ -170,8 +168,6 @@ def apply_ocr_json(cell_coordinates, cropped_table, ocr_processor, ocr_model):
 
             headers.append(result)
 
-        table['columns'].append({'header': headers, 'rows': rows})
+        columns.append({'header': headers, 'rows': rows})
 
-    dict_result['detectionResults'] = table
-
-    return dict_result
+    return columns

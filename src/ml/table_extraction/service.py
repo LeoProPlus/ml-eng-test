@@ -59,6 +59,9 @@ class Service:
             tokens = []
             tables_crops = objects_to_crops(
                 image, tokens, objects, Service.detection_class_thresholds, padding=0)
+
+            detected_table = {'tableName': 'A3'}
+
             cropped_table = tables_crops[0]['image'].convert("RGB")
 
             pixel_values = structure_transform(cropped_table).unsqueeze(0)
@@ -71,7 +74,9 @@ class Service:
                 outputs, cropped_table.size, Service.structure_id2label, iou_threshold=0.95)
             cell_coordinates = get_cell_coordinates_by_col(cells)
 
-            result = apply_ocr_json(cell_coordinates, cropped_table=cropped_table,
-                                    ocr_processor=Service.ocr_processor, ocr_model=Service.ocr_model)
+            columns = apply_ocr_json(cell_coordinates, cropped_table=cropped_table,
+                                     ocr_processor=Service.ocr_processor, ocr_model=Service.ocr_model)
 
-        return result
+        detected_table['columns'] = columns
+
+        return [detected_table]
