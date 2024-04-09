@@ -5,6 +5,7 @@ __pycache__
 .jupyter
 .local
 .npm
+.EasyOCR
 *.pt
 src/ml/walls_detection/data/cubicasa5k*
 src/ml/table_extraction/data/output

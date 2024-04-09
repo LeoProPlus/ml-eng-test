@@ -2,10 +2,10 @@ import numpy as np
 from tqdm.auto import tqdm
 
 
-def objects_to_crops(img, tokens, objects, class_thresholds, padding=10):
+def objects_to_crops(img, objects, class_thresholds, padding=10):
     """
     Process the bounding boxes produced by the table detection model into
-    cropped table images and cropped tokens.
+    cropped table images.
     """
 
     table_crops = []
@@ -21,46 +21,27 @@ def objects_to_crops(img, tokens, objects, class_thresholds, padding=10):
 
         cropped_img = img.crop(bbox)
 
-        table_tokens = [token for token in tokens if iob(
-            token['bbox'], bbox) >= 0.5]
-        for token in table_tokens:
-            token['bbox'] = [token['bbox'][0]-bbox[0],
-                             token['bbox'][1]-bbox[1],
-                             token['bbox'][2]-bbox[0],
-                             token['bbox'][3]-bbox[1]]
-
-        # If table is predicted to be rotated, rotate cropped image and tokens/words:
+        # If table is predicted to be rotated, rotate cropped image:
         if obj['label'] == 'table rotated':
             cropped_img = cropped_img.rotate(270, expand=True)
-            for token in table_tokens:
-                bbox = token['bbox']
-                bbox = [cropped_img.size[0]-bbox[3]-1,
-                        bbox[0],
-                        cropped_img.size[0]-bbox[1]-1,
-                        bbox[2]]
-                token['bbox'] = bbox
 
         cropped_table['image'] = cropped_img
-        cropped_table['tokens'] = table_tokens
 
         table_crops.append(cropped_table)
 
     return table_crops
 
 
-def get_cell_coordinates_by_col(table_data):
+def get_cell_coordinates_by_col(table_data, content_rows, header_rows):
     # Extract rows and columns
-    rows = [entry for entry in table_data if entry['label'] == 'table row']
+    rows = content_rows
     columns = [entry for entry in table_data if entry['label'] == 'table column']
-    headers = [
-        entry for entry in table_data if entry['label'] == 'table column header']
-    table_projected_row_header = [
-        entry for entry in table_data if entry['label'] == 'table projected row header']
+    headers = header_rows
 
     # Sort rows and columns by their Y and X coordinates, respectively
     rows.sort(key=lambda x: x['bbox'][1])
     columns.sort(key=lambda x: x['bbox'][0])
-    headers.sort(key=lambda x: x['bbox'][0])
+    headers.sort(key=lambda x: x['bbox'][1])
 
     # Function to find cell coordinates
     def find_cell_coordinates(row, column):
@@ -99,51 +80,18 @@ def get_cell_coordinates_by_col(table_data):
     return cell_coordinates
 
 
-def apply_ocr_to_cell(cell_image, ocr_processor, ocr_model):
-    pixel_values = ocr_processor(
-        np.array(cell_image), return_tensors="pt").pixel_values
-    generated_ids = ocr_model.generate(pixel_values)
-    result = ocr_processor.batch_decode(
-        generated_ids, skip_special_tokens=True)[0]
+def apply_easyocr_for_cell(cell_image, reader):
+    result = reader.readtext(np.array(cell_image))
 
-    return result
+    if len(result) > 0:
+        text = " ".join([x[1] for x in result])
+        return text
 
-
-def apply_ocr(cell_coordinates, cropped_table, ocr_processor, ocr_model):
-    # let's OCR row by row
-    data = dict()
-    max_num_rows = 0
-    for idx, row in enumerate(tqdm(cell_coordinates)):
-        col_text = []
-        for cell in row["cells"]:
-            # crop cell out of image
-            cell_image = np.array(cropped_table.crop(cell["cell"]))
-
-            # apply OCR
-            result = apply_ocr_to_cell(cell_image, ocr_processor, ocr_model)
-
-            col_text.append(result)
-
-        if len(col_text) > max_num_rows:
-            max_num_rows = len(col_text)
-
-        data[idx] = col_text
-
-    print("Max number of columns:", max_num_rows)
-
-    # pad rows which don't have max_num_rows elements
-    # to make sure all rows have the same number of columns
-    for row, col_data in data.copy().items():
-        if len(col_data) != max_num_rows:
-            col_data = col_data + \
-                ["" for _ in range(max_num_rows - len(col_data))]
-        data[row] = col_data
-
-    return data
+    return None
 
 
-def apply_ocr_json(cell_coordinates, cropped_table, ocr_processor, ocr_model):
-    # let's OCR row by row
+def apply_ocr_for_column_cells(cell_coordinates, cropped_table, easyocr_reader):
+    # let's OCR col by col
     columns = []
 
     for idx, row in enumerate(tqdm(cell_coordinates)):
@@ -155,19 +103,59 @@ def apply_ocr_json(cell_coordinates, cropped_table, ocr_processor, ocr_model):
             cell_image = np.array(cropped_table.crop(cell["cell"]))
 
             # apply OCR
-            result = apply_ocr_to_cell(cell_image, ocr_processor, ocr_model)
+            text = apply_easyocr_for_cell(cell_image, easyocr_reader)
 
-            rows.append(result)
+            if text is not None:
+                rows.append(text)
 
         for cell in row["headers"]:
             # crop cell out of image
             cell_image = np.array(cropped_table.crop(cell["cell"]))
 
             # apply OCR
-            result = apply_ocr_to_cell(cell_image, ocr_processor, ocr_model)
+            text = apply_easyocr_for_cell(cell_image, easyocr_reader)
 
-            headers.append(result)
+            if text is not None:
+                headers.append(text)
 
         columns.append({'header': headers, 'rows': rows})
 
     return columns
+
+
+def classify_rows(table_data, epsilon=5):
+    headers = [entry for entry in table_data if entry['label']
+               == 'table column header']
+    rows = [entry for entry in table_data if entry['label'] == 'table row']
+
+    rows.sort(key=lambda x: x['bbox'][1])
+    headers.sort(key=lambda x: x['bbox'][1])
+
+    header_rows = []
+    content_rows = []
+    table_name_row = None
+    removed_rows = set()
+
+    if len(headers) > 0 and len(rows) > 0 and headers[0]['bbox'][1] + epsilon > rows[0]['bbox'][1]:
+        table_name_row = rows[0]
+        removed_rows.add(0)
+
+    for header in headers:
+        for i, row in enumerate(rows):
+            if header['bbox'][1] - epsilon < rows[i]['bbox'][1] and header['bbox'][3] + epsilon > rows[i]['bbox'][3] and i not in removed_rows:
+                header_rows.append(row)
+                removed_rows.add(i)
+
+    for i, row in enumerate(rows):
+        if i not in removed_rows:
+            content_rows.append(row)
+
+    return content_rows, header_rows, table_name_row
+
+
+def apply_easyocr_for_table_name(cropped_table, table_name_row, easyocr_reader):
+    table_name_cell_image = np.array(
+        cropped_table.crop(table_name_row["bbox"]))
+    table_name = apply_easyocr_for_cell(table_name_cell_image, easyocr_reader)
+
+    return table_name

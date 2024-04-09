@@ -16,6 +16,7 @@ def draw_bboxes_on_img(img_path: str):
         y = box[1]
         width = box[2] - box[0]
         height = box[3] - box[1]
-        rect = Rectangle((x, y), width, height, linewidth=2, edgecolor='r', facecolor='none')
+        rect = Rectangle((x, y), width, height, linewidth=2,
+                         edgecolor='r', facecolor='none')
 
         ax.add_patch(rect)
