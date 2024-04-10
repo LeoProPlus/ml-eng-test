@@ -49,11 +49,11 @@ For testing purposes you can use `Swagger` available at [http:/localhost:5000](h
 ### Example cURL
 ```
 # walls
-curl -X POST 'http://127.0.0.1:5000/predict?type=walls' -F 'image=@src\ml\walls_detection\data\examples\F1_original.png'
+curl -X POST 'http://127.0.0.1:5000/predict?type=walls' -F 'image=@src/ml/walls_detection/data/examples/F1_original.png'
 
 # tables
-curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src\ml\table_extraction\data\input\table_example.png'
-curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src\ml\table_extraction\data\input\image_1.jpg'
-curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src\ml\table_extraction\data\input\image_2.png'
-curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src\ml\table_extraction\data\input\image_3.png'
+curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src/ml/table_extraction/data/input/table_example.png'
+curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src/ml/table_extraction/data/input/image_1.jpg'
+curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src/ml/table_extraction/data/input/image_2.png'
+curl -X POST 'http://127.0.0.1:5000/predict?type=tables' -F 'image=@src/ml/table_extraction/data/input/image_3.png'
 ```

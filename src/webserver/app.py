@@ -10,19 +10,19 @@ app = Flask(__name__)
 api = Api(app)
 
 
-class ModelSchema:
-    prediction_parser = api.parser()
-    prediction_parser.add_argument(
+class TaskSchema:
+    task_parser = api.parser()
+    task_parser.add_argument(
         'image', location='files', type=FileStorage, help='Input image', required=True)
-    prediction_parser.add_argument(
+    task_parser.add_argument(
         'type', type=str, help='Task type', required=True, choices=('walls', 'tables'),)
 
 
 @api.route('/predict')
-class ModelController(Resource):
-    @api.expect(ModelSchema.prediction_parser)
+class TaskController(Resource):
+    @api.expect(TaskSchema.task_parser)
     def post(self):
-        args = ModelSchema.prediction_parser.parse_args()
+        args = TaskSchema.task_parser.parse_args()
         image_file = args['image']
         type = args['type']
 
@@ -40,4 +40,4 @@ class ModelController(Resource):
 
             return Response(response=response, status=200, mimetype='application/json')
 
-        return Response(status=200)
+        return Response(status=400)

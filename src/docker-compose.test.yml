@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  webserver-test:
+    container_name: webserver-test
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: "pytest webserver --disable-pytest-warnings --junitxml=./webserver/report.xml"
+    volumes:
+      - ".:/home/jovyan"
+    environment:
+      - FLASK_APP=webserver.app
+      - FLASK_ENV=development
+      - WALLS_DETECTION_MODEL_FILE=/tmp/models/model_6_566.00565.pt

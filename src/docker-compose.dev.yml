@@ -14,7 +14,7 @@ services:
     environment:
       - FLASK_APP=webserver.app
       - FLASK_ENV=development
-      - WALLS_DETECTION_MODEL_FILE=ml-eng-test-lfs-storage/models/model_6_566.00565.pt
+      - WALLS_DETECTION_MODEL_FILE=/tmp/models/model_6_566.00565.pt
   notebook:
     container_name: notebook
     build:
@@ -27,4 +27,4 @@ services:
     volumes:
       - ".:/home/jovyan"
     environment:
-      - WALLS_DETECTION_MODEL_FILE=/home/jovyan/ml-eng-test-lfs-storage/models/model_6_566.00565.pt
+      - WALLS_DETECTION_MODEL_FILE=/tmp/models/model_6_566.00565.pt
