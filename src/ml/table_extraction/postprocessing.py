@@ -18,6 +18,7 @@ def rescale_bboxes(out_bbox, size):
 def outputs_to_objects(outputs, img_size, id2label, iou_threshold=1):
     m = outputs.logits.softmax(-1).max(-1)
 
+    # apply non maximum suppresion
     nms_idxs = nms(boxes=rescale_bboxes(
         outputs['pred_boxes'][0], img_size), scores=m.values[0], iou_threshold=iou_threshold).detach().cpu()
 
@@ -27,6 +28,7 @@ def outputs_to_objects(outputs, img_size, id2label, iou_threshold=1):
     pred_bboxes = [elem.tolist()
                    for elem in rescale_bboxes(pred_bboxes, img_size)]
 
+    # build objects list
     objects = []
     for label, score, bbox in zip(pred_labels, pred_scores, pred_bboxes):
         class_label = id2label[int(label)]

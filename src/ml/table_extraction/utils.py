@@ -124,6 +124,9 @@ def apply_ocr_for_column_cells(cell_coordinates, cropped_table, easyocr_reader):
 
 
 def classify_rows(table_data, epsilon=5):
+    """
+    Group rows into one of: content_rows, header_rows or table_name_row
+    """
     headers = [entry for entry in table_data if entry['label']
                == 'table column header']
     rows = [entry for entry in table_data if entry['label'] == 'table row']

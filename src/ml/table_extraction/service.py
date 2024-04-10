@@ -49,7 +49,7 @@ class Service:
 
         detection_results = []
         with torch.no_grad():
-            # forward pass
+            # forward pass of table detection
             outputs = Service.detection_model(pixel_values)
 
             table_objects = outputs_to_objects(
@@ -58,12 +58,14 @@ class Service:
             tables_crops = objects_to_crops(
                 image, table_objects, Service.detection_class_thresholds, padding=60)
 
+            # for each table
             for i in range(len(tables_crops)):
                 cropped_table = tables_crops[i]['image'].convert("RGB")
 
                 pixel_values = structure_transform(cropped_table).unsqueeze(0)
                 pixel_values = pixel_values.to(Service.device)
 
+                # forward pass of table structure extraction
                 outputs = Service.structure_model(pixel_values)
 
                 structure_objects = outputs_to_objects(
@@ -74,12 +76,14 @@ class Service:
                 cell_coordinates = get_cell_coordinates_by_col(
                     structure_objects, content_rows, header_rows)
 
+                # apply ocr for table name
                 if table_name_row is not None:
                     table_name = apply_easyocr_for_table_name(
                         cropped_table, table_name_row, Service.easyocr_reader)
                 else:
                     table_name = None
 
+                # apply ocr for table columns
                 columns = apply_ocr_for_column_cells(
                     cell_coordinates, cropped_table=cropped_table, easyocr_reader=Service.easyocr_reader)
 
