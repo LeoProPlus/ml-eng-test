@@ -20,7 +20,7 @@ Share your project with the following GitHub users:
 - alexwine36
 
 ## Notice
-Datasets and trained models are stored on gdrive with limited quota. Please contact repo with admin if some resources were blocked.
+Datasets and trained models are stored on gdrive with limited quota. Please contact with repo admin if some resources were blocked.
 
 ## Task solutions
 In this repository we present solutions for two tasks: walls detection and table extraction.
